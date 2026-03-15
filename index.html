@@ -1,157 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#fe3c72" />
-  <title>Nimeh — Dating</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nimeh - Dating App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff4d6d, #ff8a5c);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            width: 90%;
+            max-width: 350px;
+            padding: 40px 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 42px;
+            color: #ff4d6d;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: 0.3s;
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+        }
+
+        .btn-email {
+            background: #ff4d6d;
+            color: white;
+        }
+
+        .btn-email:hover {
+            background: #ff3355;
+        }
+
+        .divider {
+            color: #999;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .terms {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .terms a {
+            color: #ff4d6d;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-  <!-- Auth screens (shown when not logged in) -->
-  <div id="auth-screen" class="screen active">
-    <div class="auth-hero">
-      <div class="logo">Nimeh</div>
-      <p class="tagline">Swipe. Match. Chat.</p>
+    <div class="login-container">
+        <h1>Nimeh</h1>
+        <p class="tagline">Swipe. Match. Chat.</p>
+        
+        <button id="btn-google" class="btn btn-google">
+            <span>🇬</span> Continue with Google
+        </button>
+        
+        <div class="divider">or</div>
+        
+        <button id="btn-email" class="btn btn-email">
+            Sign in with email
+        </button>
+        
+        <p class="terms">
+            By continuing, you agree to our 
+            <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+        </p>
     </div>
-    <div class="auth-actions">
-      <button id="btn-google" class="btn btn-google">
-        <span class="icon-google"></span> Continue with Google
-      </button>
-      <div class="divider">or</div>
-      <button id="btn-email-toggle" class="btn btn-outline">Sign in with email</button>
-      <div id="email-form" class="email-form hidden">
-        <input type="email" id="input-email" placeholder="Email" autocomplete="email" />
-        <input type="password" id="input-password" placeholder="Password" autocomplete="current-password" />
-        <button id="btn-signin" class="btn btn-primary">Sign in</button>
-        <button id="btn-signup" class="btn btn-secondary">Create account</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Main app (shown when logged in) -->
-  <div id="app-screen" class="screen">
-    <main id="main-content" class="main-content">
-      <!-- Home / Discover -->
-      <section id="view-discover" class="view active">
-        <header class="view-header">
-          <h1>Discover</h1>
-        </header>
-        <div id="discover-stack" class="card-stack"></div>
-        <div id="discover-empty" class="empty-state hidden">
-          <p>No more profiles right now. Check back later!</p>
-        </div>
-        <div class="action-buttons">
-          <button id="btn-skip" class="btn-circle btn-skip" title="Skip">✕</button>
-          <button id="btn-superlike" class="btn-circle btn-superlike" title="Super Like">⭐</button>
-          <button id="btn-like" class="btn-circle btn-like" title="Like">❤️</button>
-        </div>
-      </section>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 
-      <!-- Matches -->
-      <section id="view-matches" class="view">
-        <header class="view-header">
-          <h1>Matches</h1>
-        </header>
-        <div id="matches-list" class="matches-list"></div>
-        <div id="matches-empty" class="empty-state">
-          <p>Your matches will appear here.</p>
-        </div>
-      </section>
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA0xYFglY_0NI-PstgS4nP3uNIpyAq0_A",
+            authDomain: "nimeh-gomsodeh.firebaseapp.com",
+            projectId: "nimeh-gomsodeh",
+            storageBucket: "nimeh-gomsodeh.firebasestorage.app",
+            messagingSenderId: "815930956932",
+            appId: "1:815930956932:web:e8696a6a69b4458fd936d1"
+        };
 
-      <!-- Chat -->
-      <section id="view-chat" class="view">
-        <header class="view-header chat-header">
-          <button id="chat-back" class="btn-back hidden">←</button>
-          <h1 id="chat-title">Chat</h1>
-        </header>
-        <div id="chat-list-container" class="chat-list-container">
-          <div id="chat-list" class="chat-list"></div>
-          <div id="chat-list-empty" class="empty-state">
-            <p>Start a conversation from Matches.</p>
-          </div>
-        </div>
-        <div id="chat-room" class="chat-room hidden">
-          <div id="chat-messages" class="chat-messages"></div>
-          <div class="chat-input-wrap">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="500" />
-            <button id="chat-send" class="btn-send">Send</button>
-          </div>
-        </div>
-      </section>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-      <!-- Profile -->
-      <section id="view-profile" class="view">
-        <header class="view-header">
-          <h1>Profile</h1>
-        </header>
-        <div id="profile-content" class="profile-content">
-          <div class="profile-photo-wrap">
-            <img id="profile-photo" src="" alt="Your photo" />
-            <button id="btn-edit-photo" class="btn-edit-photo">Edit photo</button>
-          </div>
-          <div class="profile-info">
-            <h2 id="profile-name">—</h2>
-            <p id="profile-age">—</p>
-            <p id="profile-bio" class="profile-bio">—</p>
-            <div id="profile-interests" class="profile-interests"></div>
-          </div>
-          <button id="btn-edit-profile" class="btn btn-outline">Edit profile</button>
-          <button id="btn-signout" class="btn btn-ghost">Sign out</button>
-        </div>
-        <div id="edit-profile-modal" class="modal hidden">
-          <div class="modal-content">
-            <h3>Edit profile</h3>
-            <input type="text" id="edit-displayName" placeholder="Display name" />
-            <input type="number" id="edit-age" placeholder="Age" min="18" max="120" />
-            <textarea id="edit-bio" placeholder="Bio" rows="4"></textarea>
-            <input type="text" id="edit-interests" placeholder="Interests (comma separated)" />
-            <div class="modal-actions">
-              <button id="edit-cancel" class="btn btn-ghost">Cancel</button>
-              <button id="edit-save" class="btn btn-primary">Save</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+        // Google Login
+        document.getElementById('btn-google').addEventListener('click', () => {
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    alert('✅ Welcome ' + result.user.displayName);
+                    window.location.href = 'discover.html';
+                })
+                .catch(error => {
+                    alert('❌ Error: ' + error.message);
+                });
+        });
 
-    <nav class="bottom-nav">
-      <button data-view="discover" class="nav-item active" title="Discover">
-        <span class="nav-icon">🔥</span>
-        <span class="nav-label">Discover</span>
-      </button>
-      <button data-view="matches" class="nav-item" title="Matches">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">Matches</span>
-      </button>
-      <button data-view="chat" class="nav-item" title="Chat">
-        <span class="nav-icon">✉️</span>
-        <span class="nav-label">Chat</span>
-      </button>
-      <button data-view="profile" class="nav-item" title="Profile">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Profile</span>
-      </button>
-    </nav>
-  </div>
-
-  <!-- Match popup -->
-  <div id="match-popup" class="match-popup hidden">
-    <div class="match-popup-content">
-      <h2>It's a Match!</h2>
-      <p id="match-popup-name">—</p>
-      <button id="match-popup-close" class="btn btn-primary">Say hi</button>
-    </div>
-  </div>
-
-  <!-- Toast for notifications -->
-  <div id="toast" class="toast hidden"></div>
-
-  <input type="file" id="photo-input" accept="image/*" class="hidden" />
-
-  <script type="module" src="js/app.js"></script>
+        // Email Login (demo)
+        document.getElementById('btn-email').addEventListener('click', () => {
+            alert('Email login coming soon! Please use Google for now.');
+        });
+    </script>
 </body>
 </html>
