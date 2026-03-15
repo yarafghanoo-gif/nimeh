@@ -1,57 +1,84 @@
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
-  GoogleAuthProvider,
-  signOut as firebaseSignOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+// auth.js
+import { auth, db } from './firebase-config.js';
+import { signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-import { auth } from "./firebase-config.js";
-import { getOrCreateUserProfile } from "./firestore.js";
+const provider = new GoogleAuthProvider();
 
-const googleProvider = new GoogleAuthProvider();
-
-export function initAuth(callbacks) {
-
-  // وقتی از گوگل برمی‌گردیم
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result?.user) {
-        console.log("Google login success");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await getOrCreateUserProfile(user);
-      callbacks.onLoggedIn?.(user);
-    } else {
-      callbacks.onLoggedOut?.();
+// Google Sign In
+document.getElementById('login-google')?.addEventListener('click', async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Check if user exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (!userDoc.exists()) {
+            // Create new user profile
+            await setDoc(doc(db, 'users', user.uid), {
+                name: user.displayName || 'User',
+                email: user.email,
+                photo: user.photoURL || '',
+                age: null,
+                bio: '',
+                interests: [],
+                coins: 100,
+                createdAt: new Date().toISOString()
+            });
+        }
+        
+        showToast('✅ Login successful!');
+        showView('discover');
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        showToast('❌ Login failed: ' + error.message);
     }
-  });
+});
+
+// Email Sign In (you'll need to create this form)
+document.getElementById('login-email')?.addEventListener('click', () => {
+    alert('Email login coming soon! Use Google for now.');
+});
+
+// Sign Out
+export async function logout() {
+    try {
+        await signOut(auth);
+        showView('login');
+        showToast('👋 Signed out');
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
 }
 
-export async function signInWithGoogle() {
-  await signInWithRedirect(auth, googleProvider);
+// Helper functions
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
 }
 
-export async function signInWithEmail(email, password) {
-  return signInWithEmailAndPassword(auth, email, password);
+function showView(viewName) {
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById(`view-${viewName}`).classList.remove('hidden');
+    
+    if (viewName !== 'login') {
+        document.getElementById('bottom-nav').classList.remove('hidden');
+    } else {
+        document.getElementById('bottom-nav').classList.add('hidden');
+    }
 }
 
-export async function signUpWithEmail(email, password) {
-  return createUserWithEmailAndPassword(auth, email, password);
-}
+// Check auth state on load
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-export async function signOut() {
-  await firebaseSignOut(auth);
-}
-
-export function getCurrentUser() {
-  return auth.currentUser;
-}
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        showView('discover');
+    } else {
+        showView('login');
+    }
+});
