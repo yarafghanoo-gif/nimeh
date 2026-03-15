@@ -24,8 +24,7 @@ export function initAuth(callbacks) {
 }
 
 export async function signInWithGoogle() {
-  const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
+  await signInWithRedirect(auth, googleProvider);
 }
 
 export async function signInWithEmail(email, password) {
