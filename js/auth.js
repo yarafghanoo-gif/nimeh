@@ -1,18 +1,31 @@
-/**
- * Authentication: email/password and Google sign-in.
- */
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { auth, googleProvider } from './firebase-config.js';
-import { getOrCreateUserProfile } from './firestore.js';
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { auth } from "./firebase-config.js";
+import { getOrCreateUserProfile } from "./firestore.js";
+
+const googleProvider = new GoogleAuthProvider();
 
 export function initAuth(callbacks) {
+
+  // وقتی از گوگل برمی‌گردیم
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result?.user) {
+        console.log("Google login success");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       await getOrCreateUserProfile(user);
