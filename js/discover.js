@@ -1,4 +1,4 @@
-/
+/**
  * Load discover feed with optional filters.
  * @param {Object} [options] - Optional filters (client-side after fetch).
  * @param {number} [options.ageMin] - Minimum age (inclusive).
@@ -26,7 +26,8 @@ export async function loadDiscover(options = {}) {
 
     const ageMin = options.ageMin != null ? Number(options.ageMin) : null;
     const ageMax = options.ageMax != null ? Number(options.ageMax) : null;
-    if (ageMin != null  ageMax != null) {
+    // اصلاح: اضافه شدن عملگر ||
+    if (ageMin != null || ageMax != null) {
       users = users.filter((u) => {
         const a = u.age;
         if (a == null) return true;
@@ -53,7 +54,8 @@ export async function loadDiscover(options = {}) {
       container.appendChild(card);
     });
   } catch (e) {
-    if (typeof showToast === 'function') showToast(e?.message  'Could not load discover');
+    // اصلاح: اضافه شدن عملگر ||
+    if (typeof showToast === 'function') showToast(e?.message || 'Could not load discover');
     empty.classList.remove('hidden');
     const text = empty?.querySelector('.discover-empty-text');
     if (text) text.textContent = 'Something went wrong. Try again.';
@@ -76,7 +78,10 @@ export function bindDiscoverButtons(showMatchPopup) {
 
   window.addEventListener('nimeh:match', (e) => {
     const user = e.detail;
-    showMatchPopupWithUser(user);
+    // تابع showMatchPopupWithUser باید تعریف شده باشد (مثلاً در auth.js یا app.js)
+    if (typeof showMatchPopupWithUser === 'function') {
+      showMatchPopupWithUser(user);
+    }
     if (typeof showMatchPopup === 'function') showMatchPopup(user);
   });
 
@@ -86,6 +91,7 @@ export function bindDiscoverButtons(showMatchPopup) {
 
   function triggerSwipe(direction, isSuperLike = false) {
     const top = getTopCard();
+    // isAnimating و SWIPE_DURATION_MS باید تعریف شده باشند (مثلاً با const در ابتدای فایل)
     if (!top || isAnimating) return;
     isAnimating = true;
     if (direction === 'right') {
