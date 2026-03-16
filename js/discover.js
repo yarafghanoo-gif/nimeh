@@ -1,189 +1,105 @@
-/**
- * Discover: card stack, swipe gestures, like/skip/superlike.
- */
-import { addLike, getLikesSent, getDiscoverUsers, checkMatch, createMatch } from './firestore.js';
-import { getCurrentUser } from './auth.js';
+const photoUrl = user.photoURL  user.photoUrl  '';
+  const name = user.displayName  user.name  'No name';
+  const email = user.email  '';
 
-let discoverStack = [];
-let likedIds = new Set();
-let unsubMatches = null;
-
-function getCardContainer() {
-  return document.getElementById('discover-stack');
-}
-
-function getEmptyState() {
-  return document.getElementById('discover-empty');
-}
-
-function createCardElement(user) {
-  const div = document.createElement('div');
-  div.className = 'discover-card';
-  div.dataset.uid = user.id;
-  div.innerHTML = `
-    <span class="overlay-like">Like</span>
-    <span class="overlay-skip">Skip</span>
-    <img class="card-photo" src="${user.photoURL || 'https://via.placeholder.com/400x500?text=No+photo'}" alt="" />
-    <div class="card-gradient"></div>
-    <div class="card-info">
-      <div class="card-name">${escapeHtml(user.displayName || 'Unknown')}</div>
-      <div class="card-meta">${user.age != null ? user.age + ' · ' : ''}Nearby</div>
+  card.innerHTML = `
+    <div class="discover-card-photo" style="background-image:url(${photoUrl})"></div>
+    <div class="discover-card-info">
+      <div class="discover-card-name">${escapeHtml(name)}</div>
+      <div class="discover-card-email">${escapeHtml(email)}</div>
+    </div>
+    <div class="discover-card-actions">
+      <button type="button" class="discover-btn discover-btn-dislike" data-action="dislike" aria-label="Dislike">✕</button>
+      <button type="button" class="discover-btn discover-btn-superlike" data-action="superlike" aria-label="Super like">★</button>
+      <button type="button" class="discover-btn discover-btn-like" data-action="like" aria-label="Like">♥️</button>
     </div>
   `;
-  return div;
+
+  card.querySelectorAll('.discover-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      handleSwipe(currentUserId, user.id, action, card, cardsEl, document.getElementById('discover-empty'));
+    });
+  });
+
+  cardsEl.appendChild(card);
 }
 
-function escapeHtml(s) {
-  const el = document.createElement('div');
-  el.textContent = s;
-  return el.innerHTML;
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
-function setupSwipe(cardEl) {
-  let startX = 0, startY = 0, currentX = 0;
+/**
+ * Handle like / dislike / superlike and optionally create match.
+ */
+async function handleSwipe(currentUserId, targetUserId, action, cardEl, cardsEl, emptyEl) {
+  const swipeRef = doc(db, USERS_COLLECTION, currentUserId, SWIPES_SUB, targetUserId);
 
-  function onStart(e) {
-    const t = e.touches ? e.touches[0] : e;
-    startX = t.clientX;
-    startY = t.clientY;
-    currentX = startX;
-    cardEl.classList.add('dragging');
-  }
+  // Write our swipe first
+  await setDoc(swipeRef, {
+    targetId: targetUserId,
+    action,
+    timestamp: new Date().toISOString(),
+  });
 
-  function onMove(e) {
-    e.preventDefault();
-    const t = e.touches ? e.touches[0] : e;
-    currentX = t.clientX;
-    const dx = currentX - startX;
-    cardEl.style.transform = `translateX(calc(-50% + ${dx}px)) rotate(${dx * 0.03}deg)`;
-    cardEl.classList.toggle('dragging-right', dx > 40);
-    cardEl.classList.toggle('dragging-left', dx < -40);
-  }
-
-  function onEnd() {
-    cardEl.classList.remove('dragging', 'dragging-right', 'dragging-left');
-    const dx = currentX - startX;
-    if (dx > 100) {
-      cardEl.classList.add('swipe-right');
-      setTimeout(() => performLike(cardEl), 200);
-    } else if (dx < -100) {
-      cardEl.classList.add('swipe-left');
-      setTimeout(() => performSkip(cardEl), 200);
-    } else {
-      cardEl.style.transform = 'translateX(-50%)';
+  let isMatch = false;
+  if (action === 'like'  action === 'superlike') {
+    const theirSwipeRef = doc(db, USERS_COLLECTION, targetUserId, SWIPES_SUB, currentUserId);
+    const theirSwipe = await getDoc(theirSwipeRef);
+    if (theirSwipe.exists() && (theirSwipe.data().action === 'like' || theirSwipe.data().action === 'superlike')) {
+      isMatch = true;
+      const batch = writeBatch(db);
+      const myMatchRef = doc(db, USERS_COLLECTION, currentUserId, MATCHES_SUB, targetUserId);
+      const theirMatchRef = doc(db, USERS_COLLECTION, targetUserId, MATCHES_SUB, currentUserId);
+      batch.set(myMatchRef, { userId: targetUserId, createdAt: new Date().toISOString() });
+      batch.set(theirMatchRef, { userId: currentUserId, createdAt: new Date().toISOString() });
+      await batch.commit();
     }
   }
 
-  cardEl.addEventListener('touchstart', onStart, { passive: true });
-  cardEl.addEventListener('touchmove', onMove, { passive: false });
-  cardEl.addEventListener('touchend', onEnd);
-
-  cardEl.addEventListener('mousedown', onStart);
-  document.addEventListener('mousemove', function move(e) {
-    if (!cardEl.classList.contains('dragging')) return;
-    currentX = e.clientX;
-    const dx = currentX - startX;
-    cardEl.style.transform = `translateX(calc(-50% + ${dx}px)) rotate(${dx * 0.03}deg)`;
-    cardEl.classList.toggle('dragging-right', dx > 40);
-    cardEl.classList.toggle('dragging-left', dx < -40);
-  });
-  document.addEventListener('mouseup', function up() {
-    if (!cardEl.classList.contains('dragging')) return;
-    document.removeEventListener('mousemove', move);
-    document.removeEventListener('mouseup', up);
-    onEnd();
-  });
-}
-
-function removeCardByUid(uid) {
-  const container = getCardContainer();
-  const card = container.querySelector(`.discover-card[data-uid="${uid}"]`);
-  if (card) card.remove();
-  discoverStack = discoverStack.filter((u) => u.id !== uid);
-  if (discoverStack.length === 0) {
-    getEmptyState().classList.remove('hidden');
+  removeCard(cardEl, cardsEl, emptyEl);
+  if (isMatch) {
+    // Optional: show match toast / modal
+    if (typeof window.showMatchNotification === 'function') {
+      window.showMatchNotification(targetUserId);
+    }
   }
-  const remaining = container.querySelectorAll('.discover-card');
-  remaining.forEach((el, i) => {
-    el.style.zIndex = i;
-  });
 }
 
-async function performLike(cardEl, isSuperLike = false) {
-  const uid = cardEl.dataset.uid;
-  const me = getCurrentUser();
-  if (!me || !uid) return;
-  const targetUser = discoverStack.find((u) => u.id === uid);
-  if (!targetUser) return;
-
-  await addLike(me.uid, uid, isSuperLike);
-  likedIds.add(uid);
-
-  const matched = await checkMatch(me.uid, uid);
-  if (matched) {
-    await createMatch(me.uid, uid);
-    window.dispatchEvent(new CustomEvent('nimeh:match', { detail: targetUser }));
-  }
-
-  removeCardByUid(uid);
-}
-
-function performSkip(cardEl) {
-  const uid = cardEl.dataset.uid;
-  likedIds.add(uid);
-  removeCardByUid(uid);
-}
-
-export async function loadDiscover() {
-  const me = getCurrentUser();
-  if (!me) return;
-
-  likedIds = new Set(await getLikesSent(me.uid));
-  const users = await getDiscoverUsers(me.uid, [...likedIds], 20);
-  discoverStack = users;
-
-  const container = getCardContainer();
-  const empty = getEmptyState();
-  container.innerHTML = '';
-  empty.classList.add('hidden');
-
-  if (users.length === 0) {
-    empty.classList.remove('hidden');
-    return;
-  }
-
-  users.forEach((user, i) => {
-    const card = createCardElement(user);
-    card.style.zIndex = i;
-    setupSwipe(card);
-    container.appendChild(card);
-  });
-}
-
-export function bindDiscoverButtons(showMatchPopup) {
-  window.addEventListener('nimeh:match', (e) => showMatchPopup(e.detail));
-
-  document.getElementById('btn-like').addEventListener('click', () => {
-    const top = getCardContainer().querySelector('.discover-card:last-child');
-    if (top) {
-      top.classList.add('swipe-right');
-      setTimeout(() => performLike(top, false), 200);
+/**
+ * Remove card from DOM and show empty state if no cards left.
+ */
+function removeCard(cardEl, cardsEl, emptyEl) {
+  cardEl.classList.add('discover-card-removed');
+  cardEl.addEventListener('transitionend', () => {
+    cardEl.remove();
+    if (cardsEl && cardsEl.querySelectorAll('.discover-card').length === 0 && emptyEl) {
+      showEmptyState(cardsEl, emptyEl);
     }
   });
-
-  document.getElementById('btn-skip').addEventListener('click', () => {
-    const top = getCardContainer().querySelector('.discover-card:last-child');
-    if (top) {
-      top.classList.add('swipe-left');
-      setTimeout(() => performSkip(top), 200);
-    }
-  });
-
-  document.getElementById('btn-superlike').addEventListener('click', () => {
-    const top = getCardContainer().querySelector('.discover-card:last-child');
-    if (top) {
-      top.classList.add('swipe-right');
-      setTimeout(() => performLike(top, true), 200);
-    }
-  });
+  // Force reflow so transition runs
+  cardEl.offsetHeight;
+  cardEl.style.opacity = '0';
+  cardEl.style.transform = 'scale(0.8)';
 }
+
+function showEmptyState(cardsEl, emptyEl) {
+  if (!emptyEl) return;
+  emptyEl.classList.remove('hidden');
+  emptyEl.textContent = 'No more people to show. Check back later!';
+}
+
+function renderEmptyState(message) {
+  const emptyEl = document.getElementById('discover-empty');
+  const cardsEl = document.getElementById('discover-cards');
+  if (emptyEl) {
+    emptyEl.textContent = message;
+    emptyEl.classList.remove('hidden');
+  }
+  if (cardsEl) cardsEl.innerHTML = '';
+}
+
+export { getAuth, getFirestore };
