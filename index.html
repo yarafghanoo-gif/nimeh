@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#fe3c72" />
-  <title>Nimeh — Dating</title>
+  <title>Nimeh â€” Dating</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -45,9 +45,9 @@
           <p>No more profiles right now. Check back later!</p>
         </div>
         <div class="action-buttons">
-          <button id="btn-skip" class="btn-circle btn-skip" title="Skip">✕</button>
-          <button id="btn-superlike" class="btn-circle btn-superlike" title="Super Like">⭐</button>
-          <button id="btn-like" class="btn-circle btn-like" title="Like">❤️</button>
+          <button id="btn-skip" class="btn-circle btn-skip" title="Skip">âœ•</button>
+          <button id="btn-superlike" class="btn-circle btn-superlike" title="Super Like">â­</button>
+          <button id="btn-like" class="btn-circle btn-like" title="Like">â¤ï¸</button>
         </div>
       </section>
 
@@ -65,7 +65,7 @@
       <!-- Chat -->
       <section id="view-chat" class="view">
         <header class="view-header chat-header">
-          <button id="chat-back" class="btn-back hidden">←</button>
+          <button id="chat-back" class="btn-back hidden">â†</button>
           <h1 id="chat-title">Chat</h1>
         </header>
         <div id="chat-list-container" class="chat-list-container">
@@ -94,9 +94,9 @@
             <button id="btn-edit-photo" class="btn-edit-photo">Edit photo</button>
           </div>
           <div class="profile-info">
-            <h2 id="profile-name">—</h2>
-            <p id="profile-age">—</p>
-            <p id="profile-bio" class="profile-bio">—</p>
+            <h2 id="profile-name">â€”</h2>
+            <p id="profile-age">â€”</p>
+            <p id="profile-bio" class="profile-bio">â€”</p>
             <div id="profile-interests" class="profile-interests"></div>
           </div>
           <button id="btn-edit-profile" class="btn btn-outline">Edit profile</button>
@@ -120,19 +120,19 @@
 
     <nav class="bottom-nav">
       <button data-view="discover" class="nav-item active" title="Discover">
-        <span class="nav-icon">🔥</span>
+        <span class="nav-icon">ðŸ”¥</span>
         <span class="nav-label">Discover</span>
       </button>
       <button data-view="matches" class="nav-item" title="Matches">
-        <span class="nav-icon">💬</span>
+        <span class="nav-icon">ðŸ’¬</span>
         <span class="nav-label">Matches</span>
       </button>
       <button data-view="chat" class="nav-item" title="Chat">
-        <span class="nav-icon">✉️</span>
+        <span class="nav-icon">âœ‰ï¸</span>
         <span class="nav-label">Chat</span>
       </button>
       <button data-view="profile" class="nav-item" title="Profile">
-        <span class="nav-icon">👤</span>
+        <span class="nav-icon">ðŸ‘¤</span>
         <span class="nav-label">Profile</span>
       </button>
     </nav>
@@ -142,7 +142,7 @@
   <div id="match-popup" class="match-popup hidden">
     <div class="match-popup-content">
       <h2>It's a Match!</h2>
-      <p id="match-popup-name">—</p>
+      <p id="match-popup-name">â€”</p>
       <button id="match-popup-close" class="btn btn-primary">Say hi</button>
     </div>
   </div>
@@ -152,15 +152,7 @@
 
   <input type="file" id="photo-input" accept="image/*" class="hidden" />
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-
-  <!-- Module scripts -->
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
+
