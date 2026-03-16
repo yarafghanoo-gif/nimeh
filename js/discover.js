@@ -23,22 +23,24 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function loadUsers() {
-  const cardsEl = document.getElementById('discover-cards');
+  const cardsEl = document.getElementById('discover-stack');
   const emptyEl = document.getElementById('discover-empty');
   if (!cardsEl) return;
 
   try {
     // Fetch all users except current user
-    const usersQuery = query(collection(db, USERS_COLLECTION), where('__name__', '!=', currentUserId));
+    const usersQuery = query(collection(db, USERS_COLLECTION));
     const querySnapshot = await getDocs(usersQuery);
     
     usersList = [];
     querySnapshot.forEach((doc) => {
-      usersList.push({ id: doc.id, ...doc.data() });
+      if (doc.id !== currentUserId) {
+        usersList.push({ id: doc.id, ...doc.data() });
+      }
     });
 
     if (usersList.length === 0) {
-      showEmptyState('No users found.');
+      showEmptyState(emptyEl, 'No users found.');
       return;
     }
 
@@ -46,12 +48,12 @@ async function loadUsers() {
     renderCard(currentIndex);
   } catch (error) {
     console.error('Error loading users:', error);
-    showEmptyState('Error loading users.');
+    showEmptyState(emptyEl, 'Error loading users.');
   }
 }
 
 function renderCard(index) {
-  const cardsEl = document.getElementById('discover-cards');
+  const cardsEl = document.getElementById('discover-stack');
   const emptyEl = document.getElementById('discover-empty');
   if (!cardsEl) return;
 
@@ -59,7 +61,7 @@ function renderCard(index) {
   cardsEl.innerHTML = '';
 
   if (index >= usersList.length) {
-    showEmptyState('No more people to show. Check back later!');
+    showEmptyState(emptyEl, 'No more people to show. Check back later!');
     return;
   }
 
@@ -72,15 +74,17 @@ function createCardElement(user) {
   const card = document.createElement('div');
   card.className = 'discover-card';
 
-  const photoUrl = user.photoURL || user.photoUrl || '';
+  const photoUrl = user.photoURL || user.photoUrl || 'https://via.placeholder.com/150';
   const name = user.displayName || user.name || 'No name';
-  const email = user.email || '';
+  const age = user.age || '?';
+  const bio = user.bio || '';
 
   card.innerHTML = `
-    <div class="discover-card-photo" style="background-image:url(${photoUrl})"></div>
+    <div class="discover-card-photo" style="background-image:url('${photoUrl}')"></div>
     <div class="discover-card-info">
       <div class="discover-card-name">${escapeHtml(name)}</div>
-      <div class="discover-card-email">${escapeHtml(email)}</div>
+      <div class="discover-card-age">${escapeHtml(age)} years</div>
+      <div class="discover-card-bio">${escapeHtml(bio)}</div>
     </div>
     <div class="discover-card-actions">
       <button type="button" class="discover-btn discover-btn-dislike" data-action="dislike" aria-label="Dislike">✕</button>
@@ -101,13 +105,16 @@ function createCardElement(user) {
 
 function escapeHtml(str) {
   if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 async function handleSwipe(currentUserId, targetUserId, action, cardEl) {
-  const cardsEl = document.getElementById('discover-cards');
+  const cardsEl = document.getElementById('discover-stack');
   const emptyEl = document.getElementById('discover-empty');
   const swipeRef = doc(db, USERS_COLLECTION, currentUserId, SWIPES_SUB, targetUserId);
 
@@ -145,35 +152,39 @@ async function handleSwipe(currentUserId, targetUserId, action, cardEl) {
 
 function removeCard(cardEl, cardsEl, emptyEl) {
   cardEl.classList.add('discover-card-removed');
-  cardEl.addEventListener('transitionend', () => {
+  
+  // Move to next card after animation
+  setTimeout(() => {
     cardEl.remove();
-    if (cardsEl && cardsEl.querySelectorAll('.discover-card').length === 0 && emptyEl) {
-      showEmptyState('No more people to show. Check back later!');
+    currentIndex++;
+    
+    if (currentIndex >= usersList.length) {
+      showEmptyState(emptyEl, 'No more people to show. Check back later!');
     } else {
-      // Show next card
-      currentIndex++;
       renderCard(currentIndex);
     }
-  });
-  // Force reflow so transition runs
-  cardEl.offsetHeight;
+  }, 300);
+  
   cardEl.style.opacity = '0';
   cardEl.style.transform = 'scale(0.8)';
 }
 
-function showEmptyState(message) {
-  const emptyEl = document.getElementById('discover-empty');
-  const cardsEl = document.getElementById('discover-cards');
-  if (emptyEl) {
-    emptyEl.textContent = message;
-    emptyEl.classList.remove('hidden');
-  }
+function showEmptyState(emptyEl, message) {
+  if (!emptyEl) return;
+  emptyEl.textContent = message;
+  emptyEl.classList.remove('hidden');
+  
+  const cardsEl = document.getElementById('discover-stack');
   if (cardsEl) cardsEl.innerHTML = '';
 }
 
 function showMatchNotification(targetUserId) {
-  // You can implement a toast or modal here
-  console.log('It\'s a match!', targetUserId);
-  // Example: show a simple alert
-  alert('It\'s a match!');
+  // Show match popup if exists
+  const matchPopup = document.getElementById('match-popup');
+  if (matchPopup) {
+    matchPopup.classList.remove('hidden');
+    setTimeout(() => matchPopup.classList.add('hidden'), 3000);
+  } else {
+    alert('It\'s a match!');
+  }
 }
