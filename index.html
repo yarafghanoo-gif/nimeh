@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#fe3c72" />
   <title>Nimeh — Dating</title>
@@ -140,8 +140,9 @@
 
   <!-- Match popup -->
   <div id="match-popup" class="match-popup hidden">
-    <div class="match-popup-content">
+    <div class="match-popup-content match-popup-glass">
       <h2>It's a Match!</h2>
+      <img id="match-popup-photo" class="match-popup-photo" src="" alt="" />
       <p id="match-popup-name">—</p>
       <button id="match-popup-close" class="btn btn-primary">Say hi</button>
     </div>
@@ -153,5 +154,25 @@
   <input type="file" id="photo-input" accept="image/*" class="hidden" />
 
   <script type="module" src="js/app.js"></script>
+  <script>
+    document.getElementById('btn-google').onclick = function() {
+      alert('دکمه کار می‌کنه');
+    };
+  </script>
+  <script>
+    // تست قبلی (همینطور بمونه)
+    document.getElementById('btn-google').onclick = function() {
+      alert('✅ دکمه کار می‌کنه');
+    };
+  
+    // کد جدید برای بررسی لود شدن auth
+    setTimeout(function() {
+      if (typeof auth !== 'undefined') {
+        alert('✅ auth loaded');
+      } else {
+        alert('❌ auth not loaded');
+      }
+    }, 2000);
+  </script>
 </body>
 </html>
