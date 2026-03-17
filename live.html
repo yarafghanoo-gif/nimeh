@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#fe3c72" />
+  <title>Nimeh — Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* Live-specific layout (no bottom nav) */
+    body.live-page { padding-bottom: 0; }
+    .live-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+    .live-list-view, .live-room-view { flex: 1; display: flex; flex-direction: column; padding: 0 16px; overflow: hidden; }
+    .live-room-view { padding: 0; }
+    .live-list-view.hidden, .live-room-view.hidden { display: none !important; }
+    .live-list-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 12px; flex-shrink: 0; }
+    .live-list-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .live-rooms-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 24px; }
+    .live-room-card { background: var(--surface); border-radius: var(--radius-sm); padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .live-room-card .room-info { flex: 1; min-width: 0; }
+    .live-room-card .room-host { font-weight: 600; font-size: 1rem; }
+    .live-room-card .room-title { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+    .live-room-video-area { flex: 1; position: relative; min-height: 0; background: #000; }
+    .live-video-local { position: absolute; top: 12px; right: 12px; width: 120px; height: 160px; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); z-index: 2; object-fit: cover; }
+    .live-video-remote { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+    .live-video-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; }
+    .live-room-controls { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 12px; flex-shrink: 0; background: var(--surface); border-top: 1px solid var(--surface-2); }
+    .live-room-controls .btn-circle { width: 52px; height: 52px; font-size: 1.3rem; }
+    .btn-end { background: #ef4444; color: #fff; }
+    .live-chat-panel { flex-shrink: 0; height: 220px; display: flex; flex-direction: column; background: var(--surface); border-top: 1px solid var(--surface-2); }
+    .live-chat-panel .chat-messages { flex: 1; min-height: 0; padding: 12px; }
+    .live-chat-panel .chat-input-wrap { padding: 8px 12px; }
+    .live-room-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%); position: absolute; top: 0; left: 0; right: 0; z-index: 3; }
+    .live-room-topbar .btn-back { color: #fff; font-size: 1.25rem; }
+    .live-gift-btn { padding: 8px 14px; border-radius: 20px; border: none; background: var(--primary); color: #fff; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+    .msg-gift { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important; }
+  </style>
+</head>
+<body class="live-page">
+  <!-- Live List View (default) -->
+  <div id="live-list-view" class="live-list-view">
+    <div class="live-list-header">
+      <h1>Live</h1>
+      <button id="btn-start-live" class="btn btn-primary">Start live</button>
+    </div>
+    <div id="live-rooms-list" class="live-rooms-list"></div>
+    <div id="live-list-empty" class="empty-state">
+      <p>No live streams right now. Start one!</p>
+    </div>
+  </div>
+
+  <!-- Live Room View (hidden by default) -->
+  <div id="live-room-view" class="live-room-view hidden">
+    <div class="live-room-topbar">
+      <button id="btn-live-back" class="btn-back">← Back</button>
+      <span id="live-room-title" class="live-room-title"></span>
+      <button id="btn-send-gift" class="live-gift-btn">🎁 Send Gift</button>
+    </div>
+    <div class="live-room-video-area">
+      <div id="live-video-remote-wrap" class="live-video-remote-wrap">
+        <div id="live-video-remote-placeholder" class="live-video-placeholder">Waiting for stream...</div>
+        <div id="live-video-remote" class="live-video-remote"></div>
+      </div>
+      <div id="live-video-local" class="live-video-local"></div>
+    </div>
+    <div class="live-chat-panel">
+      <div id="live-chat-messages" class="chat-messages"></div>
+      <div class="chat-input-wrap">
+        <input type="text" id="live-chat-input" placeholder="Type a message..." maxlength="500" />
+        <button id="live-chat-send" class="btn-send">Send</button>
+      </div>
+    </div>
+    <div class="live-room-controls">
+      <button id="btn-mute-audio" class="btn-circle btn-skip" title="Mute">🔊</button>
+      <button id="btn-mute-video" class="btn-circle btn-superlike" title="Video off">📹</button>
+      <button id="btn-end-call" class="btn-circle btn-end" title="End">📞</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Start live modal (title input) -->
+  <div id="start-live-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Start live stream</h3>
+      <input type="text" id="live-title-input" placeholder="Stream title (e.g. Hello everyone!)" maxlength="80" />
+      <div class="modal-actions">
+        <button id="start-live-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="start-live-go" class="btn btn-primary">Go live</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.15.0/dist/agora-rtc-sdk.min.js"></script>
+  <script type="module" src="js/live.js"></script>
+</body>
+</html>
