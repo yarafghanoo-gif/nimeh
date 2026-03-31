@@ -1,7 +1,7 @@
 import { initAuth, signInWithGoogle, signInWithEmail, signUpWithEmail, logout } from "./auth.js";
 import { fetchDiscoverProfiles, likeUser, skipUser, superlikeUser } from "./discover.js";
 import { loadMatches } from "./matches.js";
-import { getChats, listenMessages, sendMessage, createChat } from "./chat.js";
+import { getChats, listenMessages, sendMessage } from "./chat.js";
 import { loadProfile, updateProfile } from "./profile.js";
 import { db, auth } from "./firebase-config.js";
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -300,7 +300,7 @@ document.getElementById("message-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessageFromInput();
 });
 
-// ** مهم: بستن پاپ‌آپ match با کلیک روی دکمه **
+// ** مهم: بستن پاپ‌آپ match **
 const matchCloseBtn = document.getElementById("match-close");
 if (matchCloseBtn) {
   matchCloseBtn.onclick = () => {
