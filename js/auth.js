@@ -1,4 +1,3 @@
-// auth.js
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -7,91 +6,46 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { auth, googleProvider, db } from "./firebase-config.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { auth, googleProvider } from "./firebase-config.js";
-
-/**
- * مقداردهی اولیه احراز هویت
- * @param {Object} callbacks - شامل onLoggedIn و onLoggedOut
- */
 export function initAuth(callbacks) {
-  // مدیریت نتیجه برگشتی از Google Redirect
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result && result.user) {
-        console.log("Google sign-in result:", result.user);
-        callbacks?.onLoggedIn?.(result.user);
-      }
-    })
-    .catch((error) => {
-      console.error("Redirect result error:", error);
-    });
+  getRedirectResult(auth).catch(console.error);
 
-  // نظارت بر تغییر وضعیت کاربر
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
-      console.log("User logged in:", user);
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          displayName: user.displayName || "کاربر",
+          email: user.email,
+          photoURL: user.photoURL || "images/default-avatar.png",
+          age: null,
+          bio: "",
+          interests: [],
+          createdAt: new Date()
+        });
+      }
       callbacks?.onLoggedIn?.(user);
     } else {
-      console.log("User logged out");
       callbacks?.onLoggedOut?.();
     }
   });
 }
 
-/**
- * ورود با گوگل (با ریدایرکت)
- */
 export async function signInWithGoogle() {
-  try {
-    await signInWithRedirect(auth, googleProvider);
-  } catch (error) {
-    console.error("Google sign-in error:", error);
-    throw error;
-  }
+  await signInWithRedirect(auth, googleProvider);
 }
 
-/**
- * ورود با ایمیل و رمز عبور
- */
 export async function signInWithEmail(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential;
-  } catch (error) {
-    console.error("Email sign-in error:", error);
-    throw error;
-  }
+  return signInWithEmailAndPassword(auth, email, password);
 }
 
-/**
- * ثبت‌نام با ایمیل و رمز عبور
- */
 export async function signUpWithEmail(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential;
-  } catch (error) {
-    console.error("Email sign-up error:", error);
-    throw error;
-  }
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 
-/**
- * خروج از حساب کاربری
- */
 export async function logout() {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error("Logout error:", error);
-    throw error;
-  }
-}
-
-/**
- * دریافت کاربر فعلی
- */
-export function getCurrentUser() {
-  return auth.currentUser;
+  await signOut(auth);
 }
