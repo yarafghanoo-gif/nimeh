@@ -1,173 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#fe3c72" />
-  <title>Nimeh — Dating</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nimeh - Dating App</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Auth screens (shown when not logged in) -->
+  <!-- صفحه لاگین -->
   <div id="auth-screen" class="screen active">
-    <div class="auth-hero">
-      <div class="logo">Nimeh</div>
+    <div class="auth-container">
+      <h1 class="logo">Nimeh</h1>
       <p class="tagline">Swipe. Match. Chat.</p>
-    </div>
-    <div class="auth-actions">
-      <button id="btn-google" class="btn btn-google">
-        <span class="icon-google"></span> Continue with Google
-      </button>
-      <div class="divider">or</div>
-      <button id="btn-email-toggle" class="btn btn-outline">Sign in with email</button>
+      <button id="google-login" class="btn btn-google">ورود با گوگل</button>
+      <div class="divider">یا</div>
+      <button id="show-email-form" class="btn btn-outline">ورود با ایمیل</button>
       <div id="email-form" class="email-form hidden">
-        <input type="email" id="input-email" placeholder="Email" autocomplete="email" />
-        <input type="password" id="input-password" placeholder="Password" autocomplete="current-password" />
-        <button id="btn-signin" class="btn btn-primary">Sign in</button>
-        <button id="btn-signup" class="btn btn-secondary">Create account</button>
+        <input type="email" id="email" placeholder="ایمیل">
+        <input type="password" id="password" placeholder="رمز عبور">
+        <button id="email-login" class="btn btn-primary">ورود</button>
+        <button id="email-signup" class="btn btn-secondary">ثبت‌نام</button>
       </div>
     </div>
   </div>
 
-  <!-- Main app (shown when logged in) -->
+  <!-- صفحه اصلی اپلیکیشن -->
   <div id="app-screen" class="screen">
-    <main id="main-content" class="main-content">
-      <!-- Home / Discover -->
-      <section id="view-discover" class="view active">
-        <header class="view-header">
-          <h1>Discover</h1>
-        </header>
-        <div id="discover-stack" class="card-stack"></div>
-        <div id="discover-empty" class="empty-state hidden">
-          <p>No more profiles right now. Check back later!</p>
-        </div>
+    <div class="container">
+      <!-- صفحه کشف (سوایپ) -->
+      <div id="discover-view" class="view active">
+        <div id="card-stack" class="card-stack"></div>
+        <div id="discover-empty" class="empty-state hidden">پروفایل بیشتری وجود ندارد</div>
         <div class="action-buttons">
-          <button id="btn-skip" class="btn-circle btn-skip" title="Skip">✕</button>
-          <button id="btn-superlike" class="btn-circle btn-superlike" title="Super Like">⭐</button>
-          <button id="btn-like" class="btn-circle btn-like" title="Like">❤️</button>
+          <button class="action-btn skip" id="skip-btn">✕</button>
+          <button class="action-btn superlike" id="superlike-btn">⭐</button>
+          <button class="action-btn like" id="like-btn">❤️</button>
         </div>
-      </section>
+      </div>
 
-      <!-- Matches -->
-      <section id="view-matches" class="view">
-        <header class="view-header">
-          <h1>Matches</h1>
-        </header>
+      <!-- صفحه matches -->
+      <div id="matches-view" class="view">
+        <h2>Matches</h2>
         <div id="matches-list" class="matches-list"></div>
-        <div id="matches-empty" class="empty-state">
-          <p>Your matches will appear here.</p>
-        </div>
-      </section>
+        <div id="matches-empty" class="empty-state">هنوز هیچ match ای ندارید</div>
+      </div>
 
-      <!-- Chat -->
-      <section id="view-chat" class="view">
-        <header class="view-header chat-header">
-          <button id="chat-back" class="btn-back hidden">←</button>
-          <h1 id="chat-title">Chat</h1>
-        </header>
-        <div id="chat-list-container" class="chat-list-container">
-          <div id="chat-list" class="chat-list"></div>
-          <div id="chat-list-empty" class="empty-state">
-            <p>Start a conversation from Matches.</p>
-          </div>
-        </div>
+      <!-- صفحه چت -->
+      <div id="chat-view" class="view">
+        <div id="chat-list" class="chat-list"></div>
         <div id="chat-room" class="chat-room hidden">
+          <div class="chat-header">
+            <button id="chat-back" class="back-btn">←</button>
+            <span id="chat-user-name"></span>
+          </div>
           <div id="chat-messages" class="chat-messages"></div>
-          <div class="chat-input-wrap">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="500" />
-            <button id="chat-send" class="btn-send">Send</button>
+          <div class="chat-input">
+            <input type="text" id="message-input" placeholder="پیام خود را بنویسید...">
+            <button id="send-btn">ارسال</button>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Profile -->
-      <section id="view-profile" class="view">
-        <header class="view-header">
-          <h1>Profile</h1>
-        </header>
-        <div id="profile-content" class="profile-content">
-          <div class="profile-photo-wrap">
-            <img id="profile-photo" src="" alt="Your photo" />
-            <button id="btn-edit-photo" class="btn-edit-photo">Edit photo</button>
-          </div>
-          <div class="profile-info">
-            <h2 id="profile-name">—</h2>
-            <p id="profile-age">—</p>
-            <p id="profile-bio" class="profile-bio">—</p>
-            <div id="profile-interests" class="profile-interests"></div>
-          </div>
-          <button id="btn-edit-profile" class="btn btn-outline">Edit profile</button>
-          <button id="btn-signout" class="btn btn-ghost">Sign out</button>
+      <!-- صفحه پروفایل -->
+      <div id="profile-view" class="view">
+        <div class="profile-card">
+          <img id="profile-photo" class="profile-photo" src="images/default-avatar.png" alt="پروفایل">
+          <h2 id="profile-name">...</h2>
+          <p id="profile-age"></p>
+          <p id="profile-bio"></p>
+          <div id="profile-interests" class="interests"></div>
+          <button id="edit-profile-btn" class="btn btn-outline">ویرایش پروفایل</button>
+          <button id="logout-btn" class="btn btn-ghost">خروج</button>
         </div>
-        <div id="edit-profile-modal" class="modal hidden">
-          <div class="modal-content">
-            <h3>Edit profile</h3>
-            <input type="text" id="edit-displayName" placeholder="Display name" />
-            <input type="number" id="edit-age" placeholder="Age" min="18" max="120" />
-            <textarea id="edit-bio" placeholder="Bio" rows="4"></textarea>
-            <input type="text" id="edit-interests" placeholder="Interests (comma separated)" />
-            <div class="modal-actions">
-              <button id="edit-cancel" class="btn btn-ghost">Cancel</button>
-              <button id="edit-save" class="btn btn-primary">Save</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
 
     <nav class="bottom-nav">
-      <button data-view="discover" class="nav-item active" title="Discover">
-        <span class="nav-icon">🔥</span>
-        <span class="nav-label">Discover</span>
-      </button>
-      <button data-view="matches" class="nav-item" title="Matches">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">Matches</span>
-      </button>
-      <button data-view="chat" class="nav-item" title="Chat">
-        <span class="nav-icon">✉️</span>
-        <span class="nav-label">Chat</span>
-      </button>
-      <button data-view="profile" class="nav-item" title="Profile">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Profile</span>
-      </button>
+      <button data-view="discover" class="nav-btn active">🔥 کشف</button>
+      <button data-view="matches" class="nav-btn">💬 matches</button>
+      <button data-view="chat" class="nav-btn">✉️ چت</button>
+      <button data-view="profile" class="nav-btn">👤 پروفایل</button>
     </nav>
   </div>
 
-  <!-- Match popup -->
-  <div id="match-popup" class="match-popup hidden">
-    <div class="match-popup-content match-popup-glass">
-      <h2>It's a Match!</h2>
-      <img id="match-popup-photo" class="match-popup-photo" src="" alt="" />
-      <p id="match-popup-name">—</p>
-      <button id="match-popup-close" class="btn btn-primary">Say hi</button>
+  <!-- مودال ویرایش پروفایل -->
+  <div id="edit-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>ویرایش پروفایل</h3>
+      <input type="text" id="edit-name" placeholder="نام">
+      <input type="number" id="edit-age" placeholder="سن">
+      <textarea id="edit-bio" placeholder="بیوگرافی" rows="3"></textarea>
+      <input type="text" id="edit-interests" placeholder="علاقه‌مندی‌ها (با کاما جدا کنید)">
+      <input type="file" id="edit-photo" accept="image/*">
+      <div class="modal-buttons">
+        <button id="edit-cancel" class="btn btn-ghost">انصراف</button>
+        <button id="edit-save" class="btn btn-primary">ذخیره</button>
+      </div>
     </div>
   </div>
 
-  <!-- Toast for notifications -->
-  <div id="toast" class="toast hidden"></div>
+  <!-- پاپ‌آپ match -->
+  <div id="match-popup" class="match-popup hidden">
+    <div class="match-content">
+      <h2>تبریک! ❤️</h2>
+      <p>شما با <span id="match-name"></span> match شدید!</p>
+      <img id="match-photo" src="" alt="">
+      <button id="match-close" class="btn btn-primary">ارسال پیام</button>
+    </div>
+  </div>
 
-  <input type="file" id="photo-input" accept="image/*" class="hidden" />
-
-  <!-- بارگذاری ماژول اصلی app که همه چیز را مدیریت می‌کند -->
   <script type="module" src="js/app.js"></script>
-
-  <!-- دیباگ ساده برای بررسی لود شدن ماژول auth (در کنسول دیده می‌شود) -->
-  <script type="module">
-    import { auth } from './js/firebase-config.js';
-    console.log('✅ Firebase Auth loaded successfully', auth);
-    // اگر کاربر بخواهد خطا را به صورت alert ببیند (فقط برای تست)
-    setTimeout(() => {
-      if (auth) {
-        console.log('✅ auth is ready');
-      } else {
-        console.error('❌ auth not loaded');
-      }
-    }, 1000);
-  </script>
 </body>
 </html>
