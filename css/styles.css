@@ -24,7 +24,6 @@ body {
   flex-direction: column;
 }
 
-/* صفحه لاگین */
 .auth-container {
   flex: 1;
   display: flex;
@@ -134,7 +133,6 @@ body {
   display: none;
 }
 
-/* اپلیکیشن اصلی */
 .container {
   flex: 1;
   overflow-y: auto;
@@ -149,7 +147,6 @@ body {
   display: block;
 }
 
-/* کارت‌های کشف */
 .card-stack {
   position: relative;
   height: 70vh;
@@ -242,7 +239,6 @@ body {
   color: white;
 }
 
-/* لیست matches */
 .matches-list {
   display: flex;
   flex-direction: column;
@@ -273,7 +269,6 @@ body {
   flex: 1;
 }
 
-/* چت */
 .chat-list {
   margin-top: 1rem;
 }
@@ -358,7 +353,6 @@ body {
   cursor: pointer;
 }
 
-/* پروفایل */
 .profile-card {
   background: white;
   border-radius: 24px;
@@ -375,7 +369,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* مودال */
 .modal {
   position: fixed;
   top: 0;
@@ -412,7 +405,6 @@ body {
   margin-top: 1rem;
 }
 
-/* پاپ‌آپ match */
 .match-popup {
   position: fixed;
   top: 0;
@@ -442,7 +434,6 @@ body {
   margin: 1rem 0;
 }
 
-/* نوار پایین */
 .bottom-nav {
   background: white;
   display: flex;
