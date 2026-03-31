@@ -153,26 +153,21 @@
 
   <input type="file" id="photo-input" accept="image/*" class="hidden" />
 
+  <!-- بارگذاری ماژول اصلی app که همه چیز را مدیریت می‌کند -->
   <script type="module" src="js/app.js"></script>
-  <script>
-    document.getElementById('btn-google').onclick = function() {
-      alert('دکمه کار می‌کنه');
-    };
-  </script>
-  <script>
-    // تست قبلی (همینطور بمونه)
-    document.getElementById('btn-google').onclick = function() {
-      alert('✅ دکمه کار می‌کنه');
-    };
-  
-    // کد جدید برای بررسی لود شدن auth
-    setTimeout(function() {
-      if (typeof auth !== 'undefined') {
-        alert('✅ auth loaded');
+
+  <!-- دیباگ ساده برای بررسی لود شدن ماژول auth (در کنسول دیده می‌شود) -->
+  <script type="module">
+    import { auth } from './js/firebase-config.js';
+    console.log('✅ Firebase Auth loaded successfully', auth);
+    // اگر کاربر بخواهد خطا را به صورت alert ببیند (فقط برای تست)
+    setTimeout(() => {
+      if (auth) {
+        console.log('✅ auth is ready');
       } else {
-        alert('❌ auth not loaded');
+        console.error('❌ auth not loaded');
       }
-    }, 2000);
+    }, 1000);
   </script>
 </body>
 </html>
