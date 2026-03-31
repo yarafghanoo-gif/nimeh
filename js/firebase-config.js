@@ -1,3 +1,4 @@
+// firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -11,8 +12,13 @@ const firebaseConfig = {
   appId: "1:253740796446:web:40e000e46e4c51a547bc0f"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+// Export services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// (اختیاری) تنظیم زبان یا تنظیمات دیگر
+// googleProvider.setCustomParameters({ prompt: 'select_account' });
