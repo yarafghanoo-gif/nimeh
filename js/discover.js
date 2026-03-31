@@ -14,7 +14,6 @@ export async function loadDiscover() {
   container.innerHTML = "";
 
   const user = auth.currentUser;
-
   if (!user) {
     console.log("⛔ auth not ready");
     return;
@@ -28,10 +27,7 @@ export async function loadDiscover() {
     snapshot.forEach((doc) => {
       const data = doc.data();
 
-      // خودت رو نشون نده
       if (doc.id === user.uid) return;
-
-      // فقط اگر عکس داشته باشه
       if (!data.photoURL) return;
 
       count++;
@@ -40,11 +36,9 @@ export async function loadDiscover() {
       card.className = "card";
 
       card.innerHTML = `
-        <img src="${data.photoURL}" class="card-img" />
-        <div class="card-info">
-          <h2>${data.displayName || "No name"}</h2>
-          <p>${data.age || ""}</p>
-        </div>
+        <img src="${data.photoURL}" style="width:100%;height:300px;object-fit:cover;border-radius:12px;" />
+        <h2>${data.displayName || "No name"}</h2>
+        <p>${data.age || ""}</p>
       `;
 
       container.appendChild(card);
