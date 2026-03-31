@@ -1,36 +1,60 @@
 import { auth } from './firebase-config.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
-import { logout } from './auth.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { signOut as firebaseSignOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { loadDiscover } from './discover.js';
 
-// منوی پایین – فقط آیتمی که کلیک شده فعال بشه
+// =========================
+// Bottom Navigation
+// =========================
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
     const viewName = item.dataset.view;
-    
-    // اول همه رو غیرفعال کن
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    // فقط همین یکی فعال باشه
+
+    // remove active
+    document.querySelectorAll('.nav-item').forEach(nav =>
+      nav.classList.remove('active')
+    );
+
     item.classList.add('active');
-    
-    // نمایش صفحه مربوطه
-    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+
+    // switch view
+    document.querySelectorAll('.view').forEach(view =>
+      view.classList.remove('active')
+    );
+
     document.getElementById(`view-${viewName}`)?.classList.add('active');
+
+    // اگر رفت روی discover دوباره لود کن
+    if (viewName === 'discover') {
+      loadDiscover();
+    }
   });
 });
 
-// دکمه خروج
-document.getElementById('btn-signout')?.addEventListener('click', logout);
+// =========================
+// Sign out
+// =========================
+document.getElementById('btn-signout')?.addEventListener('click', async () => {
+  await firebaseSignOut(auth);
+});
 
-// تشخیص ورود یا خروج کاربر
-onAuthStateChanged(auth, (user) => {
+// =========================
+// Auth State
+// =========================
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    console.log('✅ کاربر وارد شد:', user.email);
-    // صفحه لاگین رو مخفی کن، برنامه اصلی رو نشون بده
+    console.log('✅ Logged in:', user.email);
+
+    // show app
     document.getElementById('auth-screen')?.classList.remove('active');
     document.getElementById('app-screen')?.classList.add('active');
+
+    // 👇 مهم‌ترین خط
+    await loadDiscover();
+
   } else {
-    console.log('❌ کاربر خارج شد');
-    // صفحه لاگین رو نشون بده
+    console.log('❌ Logged out');
+
     document.getElementById('auth-screen')?.classList.add('active');
     document.getElementById('app-screen')?.classList.remove('active');
   }
