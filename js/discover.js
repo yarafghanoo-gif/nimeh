@@ -3,17 +3,22 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { db } from "./firebase-config.js";
-import { getCurrentUser } from "./auth.js";
+import { db, auth } from "./firebase-config.js";
 
 export async function loadDiscover() {
   const container = document.getElementById("discover-stack");
   const empty = document.getElementById("discover-empty");
 
+  if (!container) return;
+
   container.innerHTML = "";
 
-  const me = getCurrentUser();
-  if (!me) return;
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.log("⛔ auth not ready");
+    return;
+  }
 
   try {
     const snapshot = await getDocs(collection(db, "users"));
@@ -21,13 +26,13 @@ export async function loadDiscover() {
     let count = 0;
 
     snapshot.forEach((doc) => {
-      const user = doc.data();
+      const data = doc.data();
 
       // خودت رو نشون نده
-      if (doc.id === me.uid) return;
+      if (doc.id === user.uid) return;
 
-      // فقط یوزرهایی که عکس دارن
-      if (!user.photoURL) return;
+      // فقط اگر عکس داشته باشه
+      if (!data.photoURL) return;
 
       count++;
 
@@ -35,10 +40,10 @@ export async function loadDiscover() {
       card.className = "card";
 
       card.innerHTML = `
-        <img src="${user.photoURL}" class="card-img" />
+        <img src="${data.photoURL}" class="card-img" />
         <div class="card-info">
-          <h2>${user.displayName || "No name"}</h2>
-          <p>${user.age || ""}</p>
+          <h2>${data.displayName || "No name"}</h2>
+          <p>${data.age || ""}</p>
         </div>
       `;
 
@@ -46,12 +51,12 @@ export async function loadDiscover() {
     });
 
     if (count === 0) {
-      empty.classList.remove("hidden");
+      empty?.classList.remove("hidden");
     } else {
-      empty.classList.add("hidden");
+      empty?.classList.add("hidden");
     }
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error("🔥 Firestore error:", err);
   }
 }
