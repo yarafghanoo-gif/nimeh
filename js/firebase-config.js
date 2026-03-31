@@ -1,18 +1,18 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
-import { getStorage } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAA0xYFglY_0NI-PstgS4nP3uNIpyAq0_A",
-  authDomain: "nimeh-gomsodeh.firebaseapp.com",
-  projectId: "nimeh-gomsodeh",
-  storageBucket: "nimeh-gomsodeh.firebasestorage.app",
-  messagingSenderId: "815930956932",
-  appId: "1:815930956932:web:e8696a6a69b4458fd936d1"
+  apiKey: "AIzaSyBlmIJ41RVLLhh_YRwrLyuSCzoX4RnYDbw",
+  authDomain: "nimeh-eed5f.firebaseapp.com",
+  projectId: "nimeh-eed5f",
+  storageBucket: "nimeh-eed5f.firebasestorage.app",
+  messagingSenderId: "253740796446",
+  appId: "1:253740796446:web:40e000e46e4c51a547bc0f"
 };
 
 const app = initializeApp(firebaseConfig);
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const googleProvider = new GoogleAuthProvider();
