@@ -9,10 +9,6 @@ import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/f
 // DOM elements
 const authScreen = document.getElementById("auth-screen");
 const appScreen = document.getElementById("app-screen");
-const discoverView = document.getElementById("discover-view");
-const matchesView = document.getElementById("matches-view");
-const chatView = document.getElementById("chat-view");
-const profileView = document.getElementById("profile-view");
 const navBtns = document.querySelectorAll(".nav-btn");
 const cardStack = document.getElementById("card-stack");
 const matchesList = document.getElementById("matches-list");
@@ -303,12 +299,18 @@ document.getElementById("send-btn").onclick = sendMessageFromInput;
 document.getElementById("message-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessageFromInput();
 });
-document.getElementById("match-close").onclick = () => {
-  matchPopup.classList.add("hidden");
-  showView("chat");
-  refreshChats();
-};
 
+// ** مهم: بستن پاپ‌آپ match با کلیک روی دکمه **
+const matchCloseBtn = document.getElementById("match-close");
+if (matchCloseBtn) {
+  matchCloseBtn.onclick = () => {
+    matchPopup.classList.add("hidden");
+    showView("chat");
+    refreshChats();
+  };
+}
+
+// ناوبری
 navBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     const view = btn.dataset.view;
