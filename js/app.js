@@ -58,10 +58,6 @@ function showView(viewId) {
   });
 }
 
-function showToast(message, isError = false) {
-  alert(message);
-}
-
 // ----- Discover -----
 async function refreshDiscover() {
   discoverProfiles = await fetchDiscoverProfiles();
@@ -166,12 +162,8 @@ async function refreshChats() {
   const chats = await getChats();
   if (chats.length === 0) {
     chatList.innerHTML = "";
-    const emptyDiv = document.getElementById("chat-list-empty");
-    if (emptyDiv) emptyDiv.classList.remove("hidden");
     return;
   }
-  const emptyDiv = document.getElementById("chat-list-empty");
-  if (emptyDiv) emptyDiv.classList.add("hidden");
   chatList.innerHTML = chats.map(c => `
     <div class="match-item" data-chat-id="${c.id}" data-user-id="${c.userId}">
       <img class="match-avatar" src="${c.userPhoto || 'images/default-avatar.png'}" alt="${c.userName}">
@@ -273,7 +265,7 @@ document.getElementById("email-login").onclick = async () => {
   try {
     await signInWithEmail(email, password);
   } catch (err) {
-    showToast(err.message, true);
+    alert(err.message);
   }
 };
 document.getElementById("email-signup").onclick = async () => {
@@ -282,7 +274,7 @@ document.getElementById("email-signup").onclick = async () => {
   try {
     await signUpWithEmail(email, password);
   } catch (err) {
-    showToast(err.message, true);
+    alert(err.message);
   }
 };
 document.getElementById("logout-btn").onclick = async () => {
