@@ -3,14 +3,14 @@ import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// 🔁 این مقادیر را با مقادیر پروژه‌ی خود (nimeh-gomsodeh) جایگزین کنید
+// 🔁 این مقادیر را از کنسول Firebase (پروژه nimeh-gomsodeh) کپی کنید
 const firebaseConfig = {
-  apiKey: "AIzaSyAA0xYFgLY_...",      // ← از کنسول Firebase کپی کنید
+  apiKey: "AIzaSyAA0xYFgLY_...",      // ← جایگزین کنید
   authDomain: "nimeh-gomsodeh.firebaseapp.com",
   projectId: "nimeh-gomsodeh",
   storageBucket: "nimeh-gomsodeh.firebasestorage.app",
-  messagingSenderId: "81593...",      // ← کپی کنید
-  appId: "1:815930956932:web:..."     // ← کپی کنید
+  messagingSenderId: "81593...",      // ← جایگزین کنید
+  appId: "1:815930956932:web:..."     // ← جایگزین کنید
 };
 
 const app = initializeApp(firebaseConfig);
