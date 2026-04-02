@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Nimeh - Dating App</title>
+  <title>Nimeh - Dating</title>
   <link rel="stylesheet" href="css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -26,9 +26,10 @@
   </div>
 </div>
 
-<!-- صفحه اصلی اپلیکیشن -->
+<!-- صفحه اصلی اپ -->
 <div id="app-screen" class="screen">
   <div class="container">
+    <!-- صفحه کشف -->
     <div id="discover-view" class="view active">
       <div id="card-stack" class="card-stack"></div>
       <div id="discover-empty" class="empty-state hidden">پروفایل بیشتری وجود ندارد</div>
@@ -39,12 +40,14 @@
       </div>
     </div>
 
+    <!-- صفحه matches -->
     <div id="matches-view" class="view">
       <h2>Matches</h2>
       <div id="matches-list" class="matches-list"></div>
       <div id="matches-empty" class="empty-state">هنوز هیچ match ای ندارید</div>
     </div>
 
+    <!-- صفحه چت -->
     <div id="chat-view" class="view">
       <div id="chat-list" class="chat-list"></div>
       <div id="chat-room" class="chat-room hidden">
@@ -60,6 +63,7 @@
       </div>
     </div>
 
+    <!-- صفحه پروفایل -->
     <div id="profile-view" class="view">
       <div class="profile-card">
         <img id="profile-photo" class="profile-photo" src="images/default-avatar.png" alt="پروفایل">
