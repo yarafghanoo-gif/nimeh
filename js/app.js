@@ -58,6 +58,10 @@ function showView(viewId) {
   });
 }
 
+function showToast(message) {
+  alert(message);
+}
+
 // ----- Discover -----
 async function refreshDiscover() {
   discoverProfiles = await fetchDiscoverProfiles();
@@ -292,15 +296,12 @@ document.getElementById("message-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessageFromInput();
 });
 
-// ** مهم: بستن پاپ‌آپ match **
-const matchCloseBtn = document.getElementById("match-close");
-if (matchCloseBtn) {
-  matchCloseBtn.onclick = () => {
-    matchPopup.classList.add("hidden");
-    showView("chat");
-    refreshChats();
-  };
-}
+// ** اصلاح قطعی پاپ‌آپ match **
+document.getElementById("match-close").onclick = () => {
+  matchPopup.classList.add("hidden");
+  showView("chat");
+  refreshChats();
+};
 
 // ناوبری
 navBtns.forEach(btn => {
