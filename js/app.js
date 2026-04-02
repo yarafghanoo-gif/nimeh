@@ -48,7 +48,6 @@ initAuth({
   }
 });
 
-// ----- UI helpers -----
 function showView(viewId) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById(`${viewId}-view`).classList.add("active");
@@ -56,10 +55,6 @@ function showView(viewId) {
     if (btn.dataset.view === viewId) btn.classList.add("active");
     else btn.classList.remove("active");
   });
-}
-
-function showToast(message) {
-  alert(message);
 }
 
 // ----- Discover -----
@@ -296,12 +291,15 @@ document.getElementById("message-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessageFromInput();
 });
 
-// ** اصلاح قطعی پاپ‌آپ match **
-document.getElementById("match-close").onclick = () => {
-  matchPopup.classList.add("hidden");
-  showView("chat");
-  refreshChats();
-};
+// ** بستن پاپ‌آپ match با کلیک روی دکمه ارسال پیام **
+const closeMatchBtn = document.getElementById("match-close");
+if (closeMatchBtn) {
+  closeMatchBtn.onclick = () => {
+    matchPopup.classList.add("hidden");
+    showView("chat");
+    refreshChats();
+  };
+}
 
 // ناوبری
 navBtns.forEach(btn => {
